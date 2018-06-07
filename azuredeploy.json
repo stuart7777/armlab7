@@ -102,7 +102,7 @@
                     "adminPassword": {
                       "reference": {
                         "keyVault": {
-                          "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultname'))]"
+                          "id": "[resourceId('KeyVaults', 'Microsoft.KeyVault/vaults', parameters('keyVaultname'))]"
                         },
                         "secretName": "[parameters('secretName')]"
                       }
