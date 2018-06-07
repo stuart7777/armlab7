@@ -1,0 +1,124 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "User name for the Virtual Machine."
+            }
+        },
+        "keyVaultname": {
+            "type": "string",
+            "metadata": {
+                "description": "Key vault name in Keyvaults Resource Group "
+            }
+        },
+        "secretName": {
+            "type": "string",
+            "metadata": {
+                "description": "Password secret in Keyvault"
+            }
+        },
+        "vmName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for the virtual machine"
+            },
+            "defaultValue": "myUbuntuVm"
+        },
+        "dnsLabelPrefix": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
+            }
+        },
+        "numberOfDataDisks": {
+            "type": "int",
+            "defaultValue": 1,
+            "maxValue": 2,
+            "metadata": {
+                 "description": "Number of data disks for the virtual machine"
+             }
+         },
+        "ubuntuOSVersion": {
+            "type": "string",
+            "defaultValue": "16.04-LTS",
+            "allowedValues": [
+                "14.04-LTS",
+                "16.04-LTS",
+                "17.04",
+                "17.10"
+            ],
+            "metadata": {
+                "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
+            }
+        },
+        "vnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for the virtual network"
+            }
+        },
+        "vnetPrefix": {
+            "type": "string",
+            "defaultValue": "10.0.0.0/16",
+            "metadata": {
+                "description": "CIDR address space for the virtual network"
+            }
+        },
+        "subnetName": {
+            "type": "string",
+            "defaultValue": "Subnet",
+            "metadata": {
+                "description": "Name for the subnet - defaults to Subnet"
+            }
+        },
+        "subnetPrefix": {
+            "type": "string",
+            "defaultValue": "10.0.0.0/24",
+            "metadata": {
+                "description": "CIDR address space for the subnet"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "name": "linkedTemplate",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "resourceGroup": "[resourceGroup().name]",
+            "properties": {
+                "mode": "Incremental",
+                "parameters":{
+                    "vnName": {
+                        "value": "[parameters('vmName')]"
+                    },
+                    "adminUsername": {
+                      "value": "[parameters('adminUsername')]"
+                    },
+                    "adminPassword": {
+                      "reference": {
+                        "keyVault": {
+                          "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultname'))]"
+                        },
+                        "secretName": "[parameters('secretName')]"
+                      }
+                    },
+                    "vnetName": {
+                        "value": "[parameters('vnetName')]"
+                    },
+                    "subnetName": {
+                        "value": "[parameters('subnetName')]"
+                    }
+                  },
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/stuart7777/armlab7/master/vm.json"
+                }
+            }
+        }
+      ],
+    "outputs": {}
+}
